@@ -1,0 +1,81 @@
+---
+
+- name: Create S3 bucket for Terraform backend
+  s3_bucket:
+    name: "{{ terraform_bucket }}"
+    versioning: yes
+    state: present
+
+- name: Provision supporting infrastructure using Terraform
+  terraform:
+    project_path: "{{ role_path }}/terraform"
+    force_init: yes
+    state: present
+    variables:
+      aws_keypair: "{{ aws_keypair }}"
+      base_domain: "{{ base_domain }}"
+      cloud_access_enabled: "{{ 'true' if cloud_access_enabled else 'false' }}"
+      cluster_id: "{{ cluster_id }}"
+      cluster_name: "{{ cluster_name }}"
+      route53_hosted_zone_id: "{{ route53_hosted_zone_id }}"
+      vpc_cidr_block: "{{ vpc_cidr_block }}"
+      private_subnet_cidr_block: "{{ private_subnet_cidr_block }}"
+      public_subnet_cidr_block: "{{ public_subnet_cidr_block }}"
+      bastion_private_ip: "{{ bastion_private_ip }}"
+      support_private_ip: "{{ support_private_ip }}"
+      registry_private_ip: "{{ registry_private_ip }}"
+    backend_config:
+      bucket: "{{ terraform_bucket }}"
+      key: "supporting_infra.tfstate"
+  register: r_supporting_infra_terraform
+
+- debug:
+    var: r_supporting_infra_terraform
+
+- name: Add bastion host to inventory
+  add_host:
+    name: bastion
+    ansible_host: "{{ r_supporting_infra_terraform.outputs.bastion_eip.value.public_ip }}"
+    ec2_instance_id: "{{ r_supporting_infra_terraform.outputs.bastion_instance.value.id }}"
+  changed_when: no
+
+- name: Add support host to inventory
+  add_host:
+    name: support
+    ansible_host: "{{ r_supporting_infra_terraform.outputs.support_instance.value.private_ip }}"
+    ec2_instance_id: "{{ r_supporting_infra_terraform.outputs.support_instance.value.id }}"
+  changed_when: no
+
+- name: Add registry host to inventory
+  add_host:
+    name: registry
+    ansible_host: "{{ r_supporting_infra_terraform.outputs.registry_instance.value.private_ip }}"
+    ec2_instance_id: "{{ r_supporting_infra_terraform.outputs.registry_instance.value.id }}"
+  changed_when: no
+
+- name: Update inventory items with common values
+  add_host:
+    name: "{{ item }}"
+    ansible_user: ec2-user
+    ansible_ssh_private_key_file: "{{ aws_keypair_path }}"
+    groups: supporting_infra
+  changed_when: no
+  loop:
+    - bastion
+    - support
+    - registry
+
+- name: Add ProxyCommand for SSH args of disconnected hosts
+  add_host:
+    name: "{{ item }}"
+    ansible_ssh_common_args: >-
+      -o ProxyCommand="ssh -i {{ aws_keypair_path }} -o StrictHostKeyChecking=no -W %h:%p -q ec2-user@{{ hostvars['bastion'].ansible_host }}"
+  changed_when: no
+  loop:
+    - support
+    - registry
+
+- name: Make sure instances are started
+  ec2_instance:
+    state: started
+    instance_ids: "{{ groups.supporting_infra | map('extract', hostvars, ['ec2_instance_id']) | list }}"

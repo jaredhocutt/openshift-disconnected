@@ -1,0 +1,24 @@
+---
+# defaults file for supporting_infrastructure
+
+vpc_cidr_block: 192.168.4.0/23
+private_subnet_cidr_block: 192.168.4.0/24
+public_subnet_cidr_block: 192.168.5.0/24
+
+bastion_private_ip: 192.168.5.200
+support_private_ip: 192.168.4.10
+registry_private_ip: 192.168.4.15
+
+openshift_public_hostname: "{{ cluster_name }}.{{ base_domain }}"
+openshift_internal_hostname: "{{ cluster_name }}-internal.{{ base_domain }}"
+openshift_apps_subdomain: "*.apps.{{ cluster_name }}.{{ base_domain }}"
+
+cluster_id: "{{ openshift_public_hostname | replace('.', '-') }}"
+
+terraform_bucket: "{{ cluster_id }}-tf"
+
+supporting_infra_repos_dir: /repos
+supporting_infra_rpms:
+  - docker
+  - haproxy
+  - dnsmasq

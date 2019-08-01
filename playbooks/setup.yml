@@ -1,0 +1,25 @@
+---
+
+- hosts: localhost
+  tasks:
+    - import_role:
+        name: supporting_infrastructure
+        tasks_from: provision
+
+- hosts: bastion
+  tasks:
+    - import_role:
+        name: supporting_infrastructure
+        tasks_from: bastion
+
+- hosts: support
+  tasks:
+    - import_role:
+        name: supporting_infrastructure
+        tasks_from: support
+
+- hosts: registry
+  tasks:
+    - import_role:
+        name: supporting_infrastructure
+        tasks_from: registry

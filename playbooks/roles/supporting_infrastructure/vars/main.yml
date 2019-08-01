@@ -1,0 +1,4 @@
+---
+# vars file for supporting_infrastructure
+
+cloud_access_enabled: no

@@ -3,3 +3,6 @@
 all:
   hosts:
     localhost: {}
+    bastion: {}
+    support: {}
+    registry: {}

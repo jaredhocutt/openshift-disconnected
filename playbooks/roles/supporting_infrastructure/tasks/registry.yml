@@ -1,0 +1,20 @@
+---
+
+- name: Create YUM repository
+  yum_repository:
+    name: internal
+    description: Internal
+    baseurl: http://{{ bastion_private_ip }}/repos/
+    enabled: yes
+    gpgcheck: no
+    state: present
+  become: yes
+
+- name: Install required packages
+  yum:
+    name:
+      - docker
+    disablerepo: "*"
+    enablerepo: internal
+    state: present
+  become: yes

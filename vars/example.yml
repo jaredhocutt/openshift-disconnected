@@ -1,0 +1,9 @@
+---
+
+cluster_name: ocp4
+base_domain: example.com
+
+aws_keypair: mykey
+aws_keypair_path: ~/.ssh/mykey.pem
+cloud_access_enabled: yes
+route53_hosted_zone_id: Z24HHV3DKH66

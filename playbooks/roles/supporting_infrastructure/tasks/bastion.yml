@@ -1,0 +1,72 @@
+---
+
+- name: Enable required YUM repositories
+  ini_file:
+    path: /etc/yum.repos.d/redhat-rhui.repo
+    section: "{{ item }}"
+    option: enabled
+    value: "1"
+    create: no
+  become: yes
+  loop:
+    - rhui-REGION-rhel-server-releases
+    - rhui-REGION-rhel-server-extras
+
+- name: Install required packages
+  yum:
+    name:
+      - createrepo
+      - httpd
+    state: present
+  become: yes
+
+- name: Create {{ supporting_infra_repos_dir }} for synced RPMs
+  file:
+    path: "{{ supporting_infra_repos_dir }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  become: yes
+
+- name: Download RPMs needed to setup supporting infrastructure
+  command: >-
+    yumdownloader
+    --resolve
+    --destdir={{ supporting_infra_repos_dir }}
+    {{ supporting_infra_rpms | join(' ') }}
+  become: yes
+
+- name: Create repo from the downloaded RPMs
+  command: >-
+    createrepo
+    -o {{ supporting_infra_repos_dir }}
+    -v
+    {{ supporting_infra_repos_dir }}
+  become: yes
+
+- name: Set SELinux context for {{ supporting_infra_repos_dir }}
+  sefcontext:
+    target: "{{ supporting_infra_repos_dir }}(/.*)?"
+    setype: httpd_sys_content_t
+    ftype: a
+    state: present
+  become: yes
+
+- name: Restore SELinux context for {{ supporting_infra_repos_dir }}
+  command: restorecon -Rv {{ supporting_infra_repos_dir }}
+  become: yes
+
+- name: Symlink {{ supporting_infra_repos_dir }} to /var/www/html/repos
+  file:
+    src: "{{ supporting_infra_repos_dir }}"
+    dest: /var/www/html/repos
+    state: link
+  become: yes
+
+- name: Start and enable httpd
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+  become: yes
