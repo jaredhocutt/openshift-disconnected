@@ -36,3 +36,22 @@ cd openshift-disconnected
 pipenv shell
 pipenv install
 ```
+
+## Supporting Infrastructure
+
+To create the supporting infrastructure, there are playbooks that will automate this process for you.
+
+Make a copy of `vars/example.yml` in the `vars/` directory (e.g.
+`vars/cluster1.yml`) and fill in the details for your environment.
+
+If you haven't already activated your environment, do so now:
+
+```bash
+pipenv shell
+```
+
+Then run the `setup.yml` playbook:
+
+```bash
+ansible-playbook -e @vars/cluster1.yml playbooks/setup.yml -v
+```
