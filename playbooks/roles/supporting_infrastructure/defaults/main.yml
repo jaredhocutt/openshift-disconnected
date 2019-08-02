@@ -9,6 +9,7 @@ bastion_private_ip: 192.168.5.200
 support_private_ip: 192.168.4.10
 registry_private_ip: 192.168.4.15
 
+bootstrap_private_ip: 192.168.4.20
 master_private_ips:
   - 192.168.4.200
   - 192.168.4.201

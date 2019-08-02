@@ -43,3 +43,28 @@
     state: restarted
   become: yes
   when: r_supporting_infra_dnsmasq_conf.changed
+
+- name: Create haproxy config file
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  become: yes
+  register: r_supporting_infra_haproxy_conf
+
+- name: Start and enable haproxy
+  service:
+    name: haproxy
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Restart haproxy
+  service:
+    name: haproxy
+    state: restarted
+  become: yes
+  when: r_supporting_infra_haproxy_conf.changed

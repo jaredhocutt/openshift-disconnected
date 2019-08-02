@@ -6,6 +6,12 @@
         name: supporting_infrastructure
         tasks_from: provision
 
+- hosts: supporting_infra
+  tasks:
+    - import_role:
+        name: supporting_infrastructure
+        tasks_from: common
+
 - hosts: bastion
   tasks:
     - import_role:

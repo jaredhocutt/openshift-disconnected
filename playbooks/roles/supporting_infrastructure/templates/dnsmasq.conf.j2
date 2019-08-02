@@ -1,5 +1,8 @@
 strict-order
 
+server=/{{ openshift_hostname }}/{{ support_private_ip }}
+server=1.1.1.1
+
 log-queries
 log-facility=/var/log/dnsmasq.{{ cluster_id }}.log
 
