@@ -19,3 +19,27 @@
     enablerepo: internal
     state: present
   become: yes
+
+- name: Create dnsmasq config file
+  template:
+    src: dnsmasq.conf.j2
+    dest: /etc/dnsmasq.d/openshift.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  register: r_supporting_infra_dnsmasq_conf
+
+- name: Start and enable dnsmasq
+  service:
+    name: dnsmasq
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Restart dnsmasq
+  service:
+    name: dnsmasq
+    state: restarted
+  become: yes
+  when: r_supporting_infra_dnsmasq_conf.changed

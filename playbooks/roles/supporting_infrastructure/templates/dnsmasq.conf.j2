@@ -1,0 +1,16 @@
+strict-order
+
+log-queries
+log-facility=/var/log/dnsmasq.{{ cluster_id }}.log
+
+address=/api.{{ openshift_hostname }}/{{ support_private_ip }}
+address=/api-int.{{ openshift_hostname }}/{{ support_private_ip }}
+address=/.apps.{{ openshift_hostname }}/{{ support_private_ip }}
+
+address=/etcd-0.{{ openshift_hostname }}/{{ master_private_ips[0] }}
+address=/etcd-1.{{ openshift_hostname }}/{{ master_private_ips[1] }}
+address=/etcd-2.{{ openshift_hostname }}/{{ master_private_ips[2] }}
+
+srv-host=_etcd-server-ssl._tcp.{{ openshift_hostname }},etcd-0.{{ openshift_hostname }},2380,0,10
+srv-host=_etcd-server-ssl._tcp.{{ openshift_hostname }},etcd-1.{{ openshift_hostname }},2380,0,10
+srv-host=_etcd-server-ssl._tcp.{{ openshift_hostname }},etcd-2.{{ openshift_hostname }},2380,0,10

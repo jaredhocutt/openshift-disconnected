@@ -9,11 +9,17 @@ bastion_private_ip: 192.168.5.200
 support_private_ip: 192.168.4.10
 registry_private_ip: 192.168.4.15
 
-openshift_public_hostname: "{{ cluster_name }}.{{ base_domain }}"
-openshift_internal_hostname: "{{ cluster_name }}-internal.{{ base_domain }}"
-openshift_apps_subdomain: "*.apps.{{ cluster_name }}.{{ base_domain }}"
+master_private_ips:
+  - 192.168.4.200
+  - 192.168.4.201
+  - 192.168.4.202
+worker_private_ips:
+  - 192.168.4.100
+  - 192.168.4.101
 
-cluster_id: "{{ openshift_public_hostname | replace('.', '-') }}"
+openshift_hostname: "{{ cluster_name }}.{{ base_domain }}"
+
+cluster_id: "{{ openshift_hostname | replace('.', '-') }}"
 
 terraform_bucket: "{{ cluster_id }}-tf"
 
