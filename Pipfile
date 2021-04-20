@@ -7,7 +7,7 @@ name = "pypi"
 pylint = "*"
 
 [packages]
-ansible = ">=2.8,<2.9"
+ansible = ">=2.8,<2.10"
 boto = "*"
 "boto3" = "*"
 
